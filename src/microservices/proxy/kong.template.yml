@@ -1,0 +1,74 @@
+_format_version: "3.0"
+_transform: true
+
+upstreams:
+  - name: movies-upstream
+    algorithm: round-robin
+    
+    # # Health checks to automatically remove unhealthy targets
+    # healthchecks:
+    #   active:
+    #     type: http
+    #     http_path: /health
+    #     timeout: 5
+    #     concurrency: 10
+    #     healthy:
+    #       interval: 10      # Check every 10 seconds
+    #       successes: 2       # Need 2 successful checks to be healthy
+    #     unhealthy:
+    #       interval: 5        # Check every 5 seconds when unhealthy
+    #       http_failures: 3   # Mark unhealthy after 3 failures
+    #       tcp_failures: 2
+    #       timeouts: 2
+    
+    targets:
+      - target: ${MONOLITH_TARGET}
+        weight: ${MONOLITH_MOVIES_PERCENT}
+      
+      - target: ${MOVIES_SERVICE_TARGET}
+        weight: ${MOVIES_MIGRATION_PERCENT}
+
+  # - name: events-upstream
+  #   algorithm: round-robin
+  #   targets:
+  #     - target: events-service:8082
+  #       weight: 100
+
+
+services:
+  - name: monolith-service
+    url: http://monolith:8080
+    routes:
+      - name: monolith-default
+        paths:
+          - /
+        strip_path: false
+
+  - name: movies-service
+    url: http://movies-upstream  # Points to upstream, not directly to service
+    routes:
+      - name: movies-api
+        paths:
+          - /api/movies
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 10000
+          policy: local
+      
+      - name: correlation-id
+        config:
+          header_name: X-Request-ID
+          generator: uuid
+          echo_downstream: true
+
+  # - name: events-service
+  #   url: http://events-upstream
+  #   routes:
+  #     - name: events-api
+  #       paths:
+  #         - /api/events
+  #         - /events
+  #       strip_path: false

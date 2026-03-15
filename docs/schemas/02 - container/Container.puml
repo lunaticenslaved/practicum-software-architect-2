@@ -1,0 +1,64 @@
+@startuml
+title Movies Container Diagram
+
+top to bottom direction
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User", "A user of the system")
+
+System(MoviesSystem, "Movies System", "System for movies watching")
+System_Ext(NotificationExtAPI, "External Notification API", "External API for notifications")
+System_Ext(PaymentExtAPI, "External Payment API", "External API for payment processing")
+
+Container_Boundary(MoviesSystem, "Movies System") {
+  Boundary(UI, "User Interfaces") {
+    Container(MobileApp, "Mobile App", "Kotlin, Swift")
+    Container(WebApp, "Mobile App", "React, TypeScript")
+  }
+
+  Container(ProxyService, "Proxy Service", "TypeScript")
+
+  Boundary(InternalAPIs, "Internal APIs") {
+    Container(EventsService, "Events Service", "Kafka")
+
+    Container(MoviesService, "Movies Service", "Node.js")
+    Container(MoviesServiceDatabase, "Database", "PostgreSQL")
+
+    Container(PaymentService, "Payment Service", "Node.js")
+    Container(PaymentServiceDatabase, "Database", "PostgreSQL")
+
+    Container(AuthService, "Auth Service", "Node.js")
+    Container(AuthServiceDatabase, "Database", "PostgreSQL")
+
+    Container(NotificationsService, "Notifications Service", "Node.js")
+  }
+}
+
+Rel(user, MobileApp, "")
+Rel(user, WebApp, "")
+
+Rel(MobileApp, ProxyService, "")
+Rel(WebApp, ProxyService, "")
+
+Rel(ProxyService, MoviesService, "");
+Rel(ProxyService, PaymentService, "");
+Rel(ProxyService, AuthService, "");
+
+Rel(MoviesService, MoviesServiceDatabase, "");
+Rel(MoviesService, EventsService, "");
+
+Rel(PaymentService, PaymentServiceDatabase, "");
+Rel(PaymentService, EventsService, "");
+Rel(PaymentService, PaymentExtAPI, "")
+
+Rel(AuthService, AuthServiceDatabase, "");
+Rel(AuthService, EventsService, "");
+
+Rel(NotificationsService, NotificationExtAPI, "")
+
+Rel(EventsService, NotificationsService, "");
+
+' TODO add other consumers' relations for events
+
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+title Context Diagram
+
+top to bottom direction
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
+
+Person(user, "User", "A user of the system")
+
+System(MoviesSystem, "Movies System", "System for movies watching")
+System_Ext(api, "External APIs", "External APIs for some actions")
+
+Rel(user, MoviesSystem, "Uses the system")
+Rel(MoviesSystem, api, "Uses external API to notify users about changes, process payments and other")
+
+@enduml
