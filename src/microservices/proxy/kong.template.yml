@@ -5,6 +5,7 @@ upstreams:
   - name: movies-upstream
     algorithm: round-robin
     
+    # // TODO
     # # Health checks to automatically remove unhealthy targets
     # healthchecks:
     #   active:
@@ -28,16 +29,16 @@ upstreams:
       - target: ${MOVIES_SERVICE_TARGET}
         weight: ${MOVIES_MIGRATION_PERCENT}
 
-  # - name: events-upstream
-  #   algorithm: round-robin
-  #   targets:
-  #     - target: events-service:8082
-  #       weight: 100
+  - name: events-upstream
+    algorithm: round-robin
+    targets:
+      - target: ${EVENTS_SERVICE_TARGET}
+        weight: 100
 
 
 services:
   - name: monolith-service
-    url: http://monolith:8080
+    url: ${MONOLITH_URL}
     routes:
       - name: monolith-default
         paths:
@@ -64,11 +65,10 @@ services:
           generator: uuid
           echo_downstream: true
 
-  # - name: events-service
-  #   url: http://events-upstream
-  #   routes:
-  #     - name: events-api
-  #       paths:
-  #         - /api/events
-  #         - /events
-  #       strip_path: false
+  - name: events-service
+    url: http://events-upstream
+    routes:
+      - name: events-api
+        paths:
+          - /api/events
+        strip_path: false
