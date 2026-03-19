@@ -4,6 +4,7 @@ export type KafkaConfig = {
     groupId: string;
 } 
 
+console.log('KAFKA_BROKERS', process.env.KAFKA_BROKERS) 
 
 export const kafkaConfig: KafkaConfig = {
   clientId: 'my-app',

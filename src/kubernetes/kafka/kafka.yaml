@@ -25,6 +25,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  # storageClassName: local-path
   resources:
     requests:
       storage: 1Gi
@@ -48,6 +49,7 @@ spec:
       containers:
       - name: zookeeper
         image: wurstmeister/zookeeper
+        # image: zookeeper:3.8.4
         ports:
         - containerPort: 2181
           name: client
@@ -107,6 +109,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  # storageClassName: local-path
   resources:
     requests:
       storage: 5Gi
@@ -127,6 +130,23 @@ spec:
       labels:
         app: kafka
     spec:
+     # 👇 ИНИЦИАЛИЗАЦИОННЫЕ КОНТЕЙНЕРЫ ДОБАВЛЯЮТСЯ СЮДА (на уровень с containers)
+      initContainers:
+      - name: volume-permissions
+        image: busybox:1.28
+        command:
+          - sh
+          - -c
+          - |
+            echo "Setting permissions on /kafka"
+            chown -R 1000:1000 /kafka
+            mkdir -p /kafka/kafka-logs
+            chown -R 1000:1000 /kafka/kafka-logs
+            echo "Done"
+        volumeMounts:
+        - name: kafka-data
+          mountPath: /kafka
+
       containers:
       - name: kafka
         image: wurstmeister/kafka:2.13-2.7.0

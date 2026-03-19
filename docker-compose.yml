@@ -111,6 +111,7 @@ services:
       # - events-service
     ports:
       - "8000:8000"
+      - "8001:8001"
     environment:
       KONG_PROXY_LISTEN: 0.0.0.0:8000
       KONG_ADMIN_LISTEN: 0.0.0.0:8001
