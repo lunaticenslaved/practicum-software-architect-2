@@ -183,7 +183,7 @@ cat .docker/config.json | base64
 
   - Необходимо создать Deployment и Service 
   - Доработайте ingress.yaml, чтобы можно было с помощью тестов проверить создание событий
-  - Выполните дальшейшие шаги для поднятия кластера:
+  - Выполните дальнейшие шаги для поднятия кластера:
 
   1. Создайте namespace:
   ```bash
@@ -344,7 +344,7 @@ template:
 
 ```bash
 kubectl delete all --all -n cinemaabyss
-kubectl delete  namespace cinemaabyss
+kubectl delete namespace cinemaabyss
 ```
 Запустите 
 ```bash
@@ -365,6 +365,9 @@ minikube tunnel
 Потом вызовите 
 https://cinemaabyss.example.com/api/movies
 и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
+
+- ![Helm Status](./tests/helm-status.png)
+- ![Movies Output](./tests/movies-output-helm.png)
 
 
 # Задание 5
