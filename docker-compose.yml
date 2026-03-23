@@ -124,7 +124,7 @@ services:
       EVENTS_SERVICE_TARGET: events-service:8082
 
       # Migration options
-      GRADUAL_MIGRATION: "false"
+      GRADUAL_MIGRATION: "true"
       MOVIES_MIGRATION_PERCENT: 50
     networks:
       - cinemaabyss-network
