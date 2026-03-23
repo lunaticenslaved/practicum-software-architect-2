@@ -25,7 +25,62 @@ spec:
     spec:
       containers:
       - name: proxy-service
-        ..... тут
+        image: {{ .Values.proxyService.image.repository }}:{{ .Values.proxyService.image.tag }}
+        imagePullPolicy: {{ .Values.proxyService.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.proxyService.service.targetPort }}
+        env:
+        - name: PORT
+          value: "{{ .Values.proxyService.service.targetPort }}"
+        - name: DB_CONNECTION_STRING
+          value: "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable"
+        - name: MONOLITH_URL
+          value: "http://monolith:8080"
+        - name: MONOLITH_TARGET
+          value: "monolith:{{ .Values.monolith.service.targetPort }}"
+        - name: MOVIES_SERVICE_TARGET
+          value: "movies-service:{{ .Values.moviesService.service.targetPort }}"
+        - name: EVENTS_SERVICE_TARGET
+          value: "events-service:{{ .Values.eventsService.service.targetPort }}"
+        - name: GRADUAL_MIGRATION
+          value: "true"
+        - name: MOVIES_MIGRATION_PERCENT
+          value: "50"
+        - name: KONG_PROXY_LISTEN
+          value: "0.0.0.0:{{ .Values.proxyService.service.targetPort }}"
+        - name: KONG_ADMIN_LISTEN
+          value: "0.0.0.0:8001"
+        envFrom:
+        - configMapRef:
+            name: cinemaabyss-config
+        - secretRef:
+            name: cinemaabyss-secrets
+        resources:
+          {{- toYaml .Values.proxyService.resources | nindent 10 }}
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "kong health"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "kong health"
+          initialDelaySeconds: 60
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: dockerconfigjson
+
 ---
 apiVersion: v1
 kind: Service
@@ -38,5 +93,9 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   selector:
-    ... и тут
+    app: proxy-service
+  ports:
+  - port: {{ .Values.proxyService.service.port }}
+    targetPort: {{ .Values.proxyService.service.targetPort }}
+  type: {{ .Values.proxyService.service.type }}
 {{- end }}

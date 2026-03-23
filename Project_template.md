@@ -7,6 +7,9 @@
 Добавьте ссылку на файл в этот шаблон
 [ссылка на файл](ссылка)
 
+**Решение:**
+- [Диаграмма контекста](./out/docs/schemas/01%20-%20context/Context.png)
+- [Диаграмма контейнеров](./out/docs/schemas/02%20-%20container/Container.png)
 
 ## Задание 2
 
@@ -47,6 +50,10 @@
    ```
 - Протестируйте постепенный переход, изменив переменную окружения MOVIES_MIGRATION_PERCENT в файле docker-compose.yml.
 
+**Решение:**
+Добавлен API Gateway через Kong без базы данных.
+Канареечные релизы сделаны через upstreams, т.к. canary-plugin доступен только для Enterprise версии.
+
 ### 2. Kafka
  Вам как архитектуру нужно также проверить гипотезу насколько просто реализовать применение Kafka в данной архитектуре.
 
@@ -59,11 +66,16 @@
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka http://localhost:8090 
 
+**Ответ:**
+![Скрин Kafka UI](./tests/kafka-result.png)
+![Скрин Kafka Topic 1](./tests/kafka-result-topic-1.png)
+![Скрин Kafka Topic 2](./tests/kafka-result-topic-2.png)
+![Скрин Kafka Topic 3](./tests/kafka-result-topic-3.png)
 
 ## Задание 3
 
 Команда начала переезд в Kubernetes для лучшего масштабирования и повышения надежности. 
-Вам, как архитектору осталось самое сложное:
+Вам, как архитектору, осталось самое сложное:
  - реализовать CI/CD для сборки прокси сервиса
  - реализовать необходимые конфигурационные файлы для переключения трафика.
 
@@ -109,6 +121,8 @@ jobs:
 ```
 Как только сборка отработает и в github registry появятся ваши образы, можно переходить к блоку настройки Kubernetes
 Успешным результатом данного шага является "зеленая" сборка и "зеленые" тесты
+
+**Решение:** доработана конфигурация. Тесты зелёные.
 
 
 ### Proxy в Kubernetes
@@ -169,7 +183,7 @@ cat .docker/config.json | base64
 
   - Необходимо создать Deployment и Service 
   - Доработайте ingress.yaml, чтобы можно было с помощью тестов проверить создание событий
-  - Выполните дальшейшие шаги для поднятия кластера:
+  - Выполните дальнейшие шаги для поднятия кластера:
 
   1. Создайте namespace:
   ```bash
@@ -272,7 +286,10 @@ cat .docker/config.json | base64
   Откройте логи event-service и сделайте скриншот обработки событий
 
 #### Шаг 3
-Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
+Добавьте сюда скриншот вывода при вызове https://cinemaabyss.example.com/api/movies и скриншот вывода event-service после вызова тестов.
+
+- ![Movies](./tests/movies-output.png)
+- ![Events](./tests/events-service-logs.png)
 
 
 ## Задание 4
@@ -327,7 +344,7 @@ template:
 
 ```bash
 kubectl delete all --all -n cinemaabyss
-kubectl delete  namespace cinemaabyss
+kubectl delete namespace cinemaabyss
 ```
 Запустите 
 ```bash
@@ -348,6 +365,9 @@ minikube tunnel
 Потом вызовите 
 https://cinemaabyss.example.com/api/movies
 и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
+
+- ![Helm Status](./tests/helm-status.png)
+- ![Movies Output](./tests/movies-output-helm.png)
 
 
 # Задание 5
@@ -414,6 +434,12 @@ You can see 21 for the upstream_rq_pending_overflow value which means 21 calls s
 ```
 
 Приложите скриншот работы circuit breaker'а
+
+- ![Circuit Breaker 1](./tests//circuit-breaker-1.png)
+- ![Circuit Breaker 2](./tests//circuit-breaker-2.png)
+- ![Circuit Breaker Stats 1](./tests//circuit-breaker-stats-1.png)
+- ![Circuit Breaker Stats 2](./tests//circuit-breaker-stats-2.png)
+- ![Circuit Breaker Stats 3](./tests//circuit-breaker-stats-3.png)
 
 Удаляем все
 ```bash
